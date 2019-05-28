@@ -1,0 +1,26 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+source usb_config.sh
+
+modprobe -r g_mass_storage
+rm $run_file
+LogDebug "Unmounting $teslacam_loc"
+umount $teslacam_loc
+if [ $? -ne 0 ]; then
+	service smbd stop
+	sleep 5
+	umount $teslacam_loc
+	service smbd start
+fi
+sleep 1
+LogDebug "Mounting $loop_dev to $teslacam_loc (rw)"
+res=$(mount -t vfat -o rw,uid=65534,gid=65534,umask=0000 /dev/$loop_dev $teslacam_loc 2>&1)
+if [ $? -eq 0 ]; then
+	LogInfo "Stopped USB and mounted rw."
+	exit 0
+else
+	LogError "$res"
+	LogError "Failed to mount drive rw."
+	exit 1
+fi

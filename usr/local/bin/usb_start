@@ -1,0 +1,42 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+source usb_config.sh
+
+check_lo=$(df -h | grep $loop_dev)
+if [ -z "$check_lo" ]; then
+	LogDebug "Linking /dev/$loop_dev to $teslacam_dev"
+	losetup -o 1048576 /dev/$loop_dev $teslacam_dev
+fi
+if [ -e $rsync_file ]; then
+        check_rsync=$(ps -ef | grep rsync | grep -v grep)
+        if [ -n "$check_rsync" ]; then
+                LogError "Rsync is running, can't start."
+                exit 1
+        else
+                rm $rsync_file
+        fi
+fi
+
+touch $run_file
+df -h | grep $loop_dev >/dev/null
+if [ $? -eq 0 ]; then
+	LogDebug "Unmounting $teslacam_loc"
+	umount $teslacam_loc 2>/dev/null
+	if [ $? -ne 0 ]; then
+		LogDebug "Stopping smbd to unmount"
+		service smbd stop
+		sleep 5
+		res=$(umount $teslacam_loc 2>&1)
+		if [ $? -ne 0 ]; then
+			LogError "$res"
+			LogError "Could not umount usb drive."
+			service smbd start
+			exit 1
+		fi
+		service smbd start
+	fi
+fi
+mount -o ro /dev/$loop_dev $teslacam_loc 2>&1
+modprobe g_mass_storage file=$teslacam_dev stall=0
+#LogInfo "Started USB service."

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/bootstrap.min.css">
+
+	<link href="/css/all.css" rel="stylesheet">
+
+    <title>TeslaCam Control</title>
+    <style>
+        html, body {
+           height: 70%;
+        }
+
+        .container {
+            height: 100%;
+        }
+		.link {
+			color: #909090;
+		}
+		.link:hover {
+			color: #707070;
+		}
+    </style>
+</head>
+<body style="background-color: #F0F0F0;">
+<div class="container">
+	<div class="row h-100 w-100 mt-5">
+		<div class="col" style="background-color: #FFFFFF;">
+			<small><a class="link" target="_blank" href="https://github.com/cmedved/TeslaCam">https://github.com/cmedved/TeslaCam</a></small>
+			<ul class="nav nav-pills mt-3" id="pills-tab" role="tablist">
+				<li class="nav-item">
+					<a class="nav-link active" id="pills-control-tab" data-toggle="pill" href="#pills-control" role="tab" aria-controls="pills-control" aria-selected="true">Control</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" id="pills-log-tab" data-toggle="pill" href="#pills-log" role="tab" aria-controls="pills-log" aria-selected="false">Logs</a>
+				</li>
+			</ul>
+			<div class="tab-content" id="pills-tabContent">
+				<div class="tab-pane fade show active" id="pills-control" role="tabpanel" aria-labelledby="pills-control-tab">
+					<div class="row">
+						<div class="col">
+							<p class="h3" align="center">Control TeslaCam</p>
+							<p class="h5" align="center"><span id="usbStatus" class="badge badge-secondary">USB</span><span id="rsyncStatus" class="badge badge-secondary ml-1">Rsync</span><span id="diskStatus" class="badge badge-secondary ml-1">Disk</span></p>
+						</div>
+					</div>
+ 					<div class="row form-group justify-content-center">
+						<div class="col text-center">
+							<button type="button" class="btn btn-primary float-center" onclick="start_usb();">Turn On</button>
+							<button type="button" class="btn btn-danger float-center" onclick="stop_usb();">Turn Off</button>
+							<button type="button" class="btn btn-secondary floar-center" onclick="start_rsync();">Start Rsync</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-2"></div>
+						<div class="col-8">Command Output:<div id="commandOutput" class="alert alert-secondary" role="alert"></div></div>
+						<div class="col-2"></div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="pills-log" role="tabpanel" aria-labelledby="pills-log-tab">
+					<p class="h3 text-center">TeslaCam Logs</p>
+					<p>Last Updated: <span id="lastUpdated">N/A</span> <span class="fa fa-redo" onclick="get_logs()"></span></p>
+					<div id="logOutput"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="/jquery-3.4.1.min.js"></script>
+    <script src="/popper.min.js"></script>
+    <script src="/bootstrap.min.js"></script>
+	<script src="/timestamp.js"></script>
+<script>
+
+function start_usb() {
+	$("#commandOutput").html("Running Start USB...");
+	$.get('/cgi-bin/usb_start.sh', function (response) {
+		$("#commandOutput").html(response);
+	});
+}
+
+function stop_usb() {
+	$("#commandOutput").html("Running Stop USB...");
+        $.get('/cgi-bin/usb_stop.sh', function (response) {
+                $("#commandOutput").html(response);
+        });
+}
+
+function start_rsync() {
+	$("#commandOutput").html("Running rsync...");
+	$.get('/cgi-bin/rsync_start.sh', function (response) {
+		$("#commandOutput").html(response);
+	});
+}
+
+function get_status() {
+	$.get('/cgi-bin/usb_status.sh', function(response) {
+		var status = JSON.parse(response);
+		if (status.usb_status == "Running" && !$("#usbStatus").hasClass("badge-success")) {
+			$("#usbStatus").removeClass("badge-secondary badge-danger").addClass("badge-success");
+		}
+		else if (status.usb_status == "Stopped" && !$("#usbStatus").hasClass("badge-danger")) {
+			 $("#usbStatus").removeClass("badge-secondary badge-success").addClass("badge-danger");
+		}
+		$("#usbStatus").html("USB");
+		if (status.rsync_status == "Running" && !$("#rsyncStatus").hasClass("badge-success")) {
+			$("#rsyncStatus").removeClass("badge-secondary badge-danger").addClass("badge-success");
+		}
+		else if (status.rsync_status == "Stopped" && !$("#rsyncStatus").hasClass("badge-secondary")) {
+			$("#rsyncStatus").removeClass("badge-secondary badge-success").addClass("badge-secondary");
+		}
+		$("#rsyncStatus").html("Rsync");
+		var diskUsage = parseInt(status.disk_usage);
+		if (diskUsage <= 60 && !$("#diskStatus").hasClass("badge-green")) {
+			$("#diskStatus").removeClass("badge-secondary badge-danger badge-warning").addClass("badge-success");
+		}
+		else if (diskUsage <= 85 && !$("#diskStatus").hasClass("badge-warning")) {
+            $("#diskStatus").removeClass("badge-secondary badge-danger badge-success").addClass("badge-warning");
+        }
+		else if (!$("#diskStatus").hasClass("badge-danger")) {
+            $("#diskStatus").removeClass("badge-secondary badge-success badge-warning").addClass("badge-danger");
+        }
+		$("#diskStatus").html("Disk "+status.disk_usage+"%");
+	});
+}
+
+function get_logs() {
+	$.get('/cgi-bin/get_logs.sh', function(response) {
+		$("#logOutput").html(response);
+		$("#lastUpdated").html(timeStamp());
+	});
+}
+
+$(document).ready(function() {
+	get_status();
+	get_logs();
+	window.setInterval(function() {
+		get_status();
+	}, 10000);
+});
+</script>
+
+  </body>
+</html>

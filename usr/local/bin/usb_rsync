@@ -1,0 +1,34 @@
+#!/bin/bash
+cd "$(dirname "$0")"
+source usb_config.sh
+
+if [ -e $rsync_file ]; then
+	check_rsync=$(ps -ef | grep rsync | grep -v grep)
+	if [ -n $check_rsync ]; then
+		LogError "Rsync already running..."
+		exit 1
+	else
+		rm $rsync_file
+	fi
+fi
+
+ping -c 1 $rsync_ip >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+	LogError "Could not connect to rsync server."
+	exit 1
+fi
+
+touch $rsync_file
+export RSYNC_PASSWORD=$rsync_pass
+rsync -a --ignore-existing /mnt/usb/TeslaCam/ rsync://$rsync_user@$rsync_ip/$rsync_module
+if [ $? -ne 0 ]; then
+	rm $rsync_file
+	LogError "Encountered issue while performing rsync."
+	exit 1
+fi
+./usb_stop
+rsync -a --ignore-existing --remove-source-files /mnt/usb/TeslaCam/ rsync://$rsync_user@$rsync_ip/$rsync_module
+find $teslacam_loc/TeslaCam -mindepth 1 -type d -exec rmdir {} \; 2>/dev/null
+rm $rsync_file
+./usb_start
+LogInfo "Done with rsync."
