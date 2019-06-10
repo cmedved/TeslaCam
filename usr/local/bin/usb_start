@@ -37,6 +37,9 @@ if [ $? -eq 0 ]; then
 		service smbd start
 	fi
 fi
+if [ ! -e $teslacam_loc ]; then
+	mkdir -p $teslacam_loc
+fi
 mount -o ro /dev/$loop_dev $teslacam_loc 2>&1
 modprobe g_mass_storage file=$teslacam_dev stall=0
 #LogInfo "Started USB service."

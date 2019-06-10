@@ -2,30 +2,30 @@
 <html lang="en">
 <head>
     <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/bootstrap.min.css">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="/bootstrap.min.css">
 
 	<link href="/css/all.css" rel="stylesheet">
+	<link href="/bootstrap4-toggle.min.css" rel="stylesheet">
 
-    <title>TeslaCam Control</title>
-    <style>
-        html, body {
-           height: 70%;
-        }
-
-        .container {
-            height: 100%;
-        }
+	<title>TeslaCam Control</title>
+	<style>
+		html, body {
+			height: 70%;
+		}
+		.container {
+			height: 100%;
+		}
 		.link {
 			color: #909090;
 		}
 		.link:hover {
 			color: #707070;
 		}
-    </style>
+	</style>
 </head>
 <body style="background-color: #F0F0F0;">
 <div class="container">
@@ -38,6 +38,9 @@
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" id="pills-log-tab" data-toggle="pill" href="#pills-log" role="tab" aria-controls="pills-log" aria-selected="false">Logs</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" id="pills-config-tab" data-toggle="pill" href="#pills-config" role="tab" aria-controls="pills-config" aria-selected="false">Config</a>
 				</li>
 			</ul>
 			<div class="tab-content" id="pills-tabContent">
@@ -52,7 +55,7 @@
 						<div class="col text-center">
 							<button type="button" class="btn btn-primary float-center" onclick="start_usb();">Turn On</button>
 							<button type="button" class="btn btn-danger float-center" onclick="stop_usb();">Turn Off</button>
-							<button type="button" class="btn btn-secondary floar-center" onclick="start_rsync();">Start Rsync</button>
+							<button type="button" class="btn btn-secondary float-center" onclick="start_rsync();">Start Rsync</button>
 						</div>
 					</div>
 					<div class="row">
@@ -66,17 +69,115 @@
 					<p>Last Updated: <span id="lastUpdated">N/A</span> <span class="fa fa-redo" onclick="get_logs()"></span></p>
 					<div id="logOutput"></div>
 				</div>
+				<div class="tab-pane fade" id="pills-config" role="tabpanel" aria-labelledby="pills-config-tab">
+					<p class="h3 mb-3" align="center">Config TeslaCam</p>
+					<form id="config_form" action="/cgi-bin/update_config.sh" method="POST"><div class="row"><div class="col-3 col-sm-1"></div><div class="col-6 col-sm-10">
+						<div class="border">
+						<small class="text-muted ml-1 mb-0"><strong>Networking</strong></small>
+							<div class="form-group row mb-1 mt-0 ml-3 mr-3">
+								<label for="hostname" class="col-form-label col-4">Hostname</label>
+								<div class="col-8">
+									<input id="hostname" name="hostname" type="text" class="form-control form-control-sm">
+								</div>
+							</div>
+							<div class="form-group row mb-0 ml-3 mr-3">
+								<label for="wireless_ssid" class="col-form-label col-4">Wireless SSID</label>
+								<div class="col-8">
+									<input id="wireless_ssid" name="wireless_ssid" type="text" class="form-control form-control-sm">
+								</div>
+							</div>
+							<div class="form-group row ml-3 mr-3 mb-0">
+								<label for="wireless_psk" class="col-form-label col-4">Wireless PSK</label>
+								<div class="col-8">
+									<input id="wireless_psk" name="wireless_psk" type="password" class="form-control form-control-sm">
+								</div>
+							</div>
+							<div class="form-group row ml-3 mr-3 mt-0 mb-1">
+								<div class="col-4"></div>
+								<div class="col-8">
+									<div class="form-check form-check-inline">
+										<label for="web_control" class="ml-0 mr-1 my-auto">Web</label>
+										<input id="web_control" name="web_control" class="form-check-input" type="checkbox" data-size="small" data-toggle="toggle" data-style="mt-0">
+										<label for="samba" class="ml-3 mr-1 my-auto">Samba</label>
+										<input id="samba" name="samba" class="form-check-input" type="checkbox" data-size="small" data-toggle="toggle">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="border mt-1">
+						<small class="text-muted ml-1 mb-0"><strong>Rsync Settings</strong></small>
+							<div class="form-group row mb-1 mt-0 ml-3 mr-3">
+								<label for="rsync_url" class="col-form-label col-4">Rsync URL</label>
+								<div class="col-8">
+									<input id="rsrync_url" name="rsync_url" type="text" class="form-control form-control-sm">
+								</div>
+							</div>
+							<div class="form-group row mb-1 ml-3 mr-3">
+								<label for="rsync_cron" class="col-form-label col-4">Rsync Cron</label>
+								<div class="col-8">
+									<input id="rsync_cron" name="rsync_cron" type="text" class="form-control form-control-sm">
+								</div>
+							</div>
+							<div class="form-group row mb-1 mt-0 ml-3 mr-3">
+								<label for="rsync_user" class="col-form-label col-4">Rsync User</label>
+								<div class="col-8">
+									<input id="rsrync_user" name="rsync_user" type="text" class="form-control form-control-sm">
+								</div>
+							</div>
+							<div class="form-group row mb-1 ml-3 mr-3">
+								<label for="rsync_pass" class="col-form-label col-4">Rsync Pass</label>
+								<div class="col-8">
+									<input id="rsync_pass" name="rsync_pass" type="password" class="form-control form-control-sm">
+								</div>
+							</div>
+							<div class="form-group row ml-1 mt-0 mb-1"><div class="col-4"></div><div class="col-8"><div class="form-check form-check-inline">
+								<label for="rsync" class="mr-1 my-auto">Rsync</label>
+								<input id="rsync" name="rsync" class="form-check-input" type="checkbox" data-size="small" data-toggle="toggle" data-style="mr-1">
+								<label for="rsync_delete" class="ml-1 mr-1 my-auto">Delete</label>
+								<input id="rsync_delete" name="rsync_delete" class="form-check-input" type="checkbox" data-size="small" data-toggle="toggle" data-style="mr-1">
+							</div></div></div>
+							
+						</div>
+						<div class="border mt-1 mb-3">
+						<small class="text-muted ml-1 mb-0"><strong>Misc Settings</strong></small>
+							<div class="form-group row ml-3 mt-0 mb-1">
+									<div class="col-4">
+										<label for="auto_purge" class="mr-1 my-auto">Auto Purge</label>
+									</div>
+									<div class="form-check form-check-inline col-2">
+										<input id="auto_purge" name="auto_purge" class="form-check-input" type="checkbox" data-size="small" data-toggle="toggle" data-style="ml-1">
+									</div>
+									<label for="auto_purge_max_days col-form-label col-2 ml-3">Days</label>
+									<div class="col-4">
+										<input id="auto_purge_max_days" name="auto_purge_max_days" type="number" class="form-control form-control-sm">
+									</div>
+							</div>
+							<div class="form-group row mb-1 mt-0 ml-3 mr-3">
+								<label for="pi_pass" class="col-form-label col-4">Pi Password</label>
+								<div class="col-8">
+									<input id="pi_pass" name="pi_pass" type="password" class="form-control form-control-sm">
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col text-right">
+								<button type="submit" class="btn btn-primary mb-1" id="config_submit">Save Settings</button>
+							</div>
+						</div>
+					</div></div><div class="col-3 col-sm-1"></div></div></form>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="/jquery-3.4.1.min.js"></script>
-    <script src="/popper.min.js"></script>
-    <script src="/bootstrap.min.js"></script>
+	<!-- Optional JavaScript -->
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<script src="/jquery-3.4.1.min.js"></script>
+	<script src="/popper.min.js"></script>
+	<script src="/bootstrap.min.js"></script>
 	<script src="/timestamp.js"></script>
+	<script src="/bootstrap4-toggle.min.js"></script>
 <script>
 
 function start_usb() {
@@ -131,6 +232,62 @@ function get_status() {
 	});
 }
 
+function load_config() {
+	$.get('/cgi-bin/get_config.sh', function(response) {
+		var lines = response.split('\n');
+		for (var i=0; i < lines.length; i++) {
+			var parts = lines[i].split('=');
+			var key = parts[0];
+			var value = parts[1];
+			switch (key) {
+				case "hostname":
+					$("#hostname").val(value);
+				break;
+				case "wireless_ssid":
+					$("#wireless_ssid").val(value);
+				break;
+				case "samba":
+					if (value == "on") {
+						$("#samba").bootstrapToggle('on');
+					}
+				break;
+				case "rsync":
+					if (value == "on") {
+						$("#rsync").bootstrapToggle('on');
+					}
+				break;
+				case "rsync_url":
+					$("#rsync_url").val(value);
+				break;
+				case "rsync_user":
+					$("#rsync_user").val(value);
+				break;
+				case "rsync_cron":
+					$("#rsync_cron").val(value);
+				break;
+				case "rsync_delete":
+					if (value == "on") {
+						$("#rsync_delete").bootstrapToggle('on');
+					}
+				break;
+				case "auto_purge":
+					if (value == "on") {
+						$("#auto_purge").bootstrapToggle('on');
+					}
+				break;
+				case "auto_purge_max_days":
+					$("#auto_purge_max_days").val(value);
+				break;
+				case "web_control":
+					if (value == "on") {
+						$("#web_control").bootstrapToggle('on');
+					}
+				break;
+			}
+		}
+	});
+}
+
 function get_logs() {
 	$.get('/cgi-bin/get_logs.sh', function(response) {
 		$("#logOutput").html(response);
@@ -141,9 +298,42 @@ function get_logs() {
 $(document).ready(function() {
 	get_status();
 	get_logs();
-	window.setInterval(function() {
-		get_status();
-	}, 10000);
+	load_config();
+//	window.setInterval(function() {
+//		get_status();
+//	}, 10000);
+	$("#config_form").submit(function(e) {
+		console.log("submitting...");
+		e.preventDefault();
+		$("#config_submit").text("Saving...");
+		$("#config_submit").removeClass("btn-primary").addClass("btn-secondary");
+		var form=$(this);
+		var url= form.attr('action');
+		var formData=form.serializeArray();
+		formData = formData.concat (
+			jQuery('#config_form input[type=checkbox]:not(:checked)').map(
+				function() {
+					return {"name": this.name, "value": "off"}
+				}).get()
+		);
+		$.ajax({
+			type: form.attr('method'),
+			url: form.attr('action'),
+			data: formData,
+			success: function(data) {
+				console.log(data);
+				$("#config_submit").text("Success!");
+				$("#config_submit").removeClass("btn-primary btn-secondary btn-danger").addClass("btn-success");
+				setTimeout(function() { $("#config_submit").text("Save Settings").removeClass("btn-secondary btn-success btn-danger").addClass("btn-primary"); }, 5000);
+			},
+			error: function(data) {
+				console.log(data);
+ 				$("#config_submit").text("Failure");
+				$("#config_submit").removeClass("btn-primary btn-secondary btn-success").addClass("btn-danger");
+				setTimeout(function() { $("#config_submit").text("Save Settings").removeClass("btn-secondary btn-success btn-danger").addClass("btn-primary"); }, 5000);
+			}
+		});
+	});
 });
 </script>
 

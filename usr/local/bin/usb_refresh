@@ -2,7 +2,6 @@
 cd "$(dirname "$0")"
 source usb_config.sh
 if [ -e $run_file ] && [ ! -e $rsync_file ]; then
-	LogDebug "Re-mounting usb drive as ro"
 	res=$(umount /dev/$loop_dev 2>&1)
 	if [ $? -ne 0 ]; then
 		LogError "Failed to unmount /dev/$loop_dev:"

@@ -2,6 +2,10 @@
 cd "$(dirname "$0")"
 source usb_config.sh
 
+if [ "$rsync" != "on" ]; then
+	exit 0
+fi
+
 if [ -e $rsync_file ]; then
 	check_rsync=$(ps -ef | grep rsync | grep -v grep)
 	if [ -n $check_rsync ]; then

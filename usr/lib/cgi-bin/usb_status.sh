@@ -16,5 +16,8 @@ else
 fi
 
 disk_usage=$(df -h | grep /dev/loop0 | grep -o "[0-9]*%" | grep -o "[0-9]*")
+if [ -z "$disk_usage" ]; then
+	disk_usage=-1
+fi
 
 echo "{ \"usb_status\":\"$usb_status\", \"rsync_status\":\"$rsync_status\", \"disk_usage\": $disk_usage }"
